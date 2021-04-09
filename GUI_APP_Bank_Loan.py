@@ -38,22 +38,16 @@ predict_text = tk.StringVar(gui, value = ' ')
 
 var = tk.DoubleVar()
 cu_score = tk.StringVar()
+
 def sel():
+    global score
     selection = "Credit Score = " + str(var.get())
     #label.config(text = selection)
-    cu_score.set(selection)
+    score = int(var.get())
+    cu_score.set(score)
 
    
-combo_credit_score = Combobox(gui)
-
-Credit_Score_list = range(0,8000)
-combo_credit_score['values']= Credit_Score_list
-combo_credit_score.current(0) #setting default value
-def get_cred_score_cb():
-    global Credit_Score
-    Credit_Score = combo_credit_score.get()
-
-       
+      
 
 def get_model_path():
        global model_name
@@ -72,8 +66,8 @@ def get_scaler_path():
        file = filedialog.askopenfilename(filetypes = (("Saved Scalers","*.pkl"),("all files","*.*")))
        scaler_path.set(file)
        folder_path = os.path.dirname(os.path.abspath(file))   #formatting to 'T:\\Data\\DBDesign'
-       os.chdir (folder_path)  #Setting Working Directory
-       cwd = os.getcwd()
+       #os.chdir (folder_path)  #Setting Working Directory
+       #cwd = os.getcwd()
        #print(f"Current WD set as: {cwd}")
        scaler_letters_count = (len(folder_path) - len(file))+1
        scaler_name = file[scaler_letters_count:]
@@ -83,58 +77,30 @@ def get_scaler_path():
 
 
 def predict_clicked(*args):
-       get_cred_score_cb()  
-       Credit_Score_feat =  int(var.get())
-       print (f"Credit score is : {Credit_Score_feat}")
-       print(type(Credit_Score_feat))
-
+       #get_cred_score_cb()  
+       #Credit_Score_feat =  int(var.get())
+       print (f"Credit score is : {score}")
+       print(type(score))
+       print("*****************")
+       array = [445412, score, 1167493, 8, 17.2, 1, 228190, 1, 0]
+       print(array)
+       print("*********2")
        sc_file = pickle.load(open(scaler_name, "rb"))
-       
-       
-       scaler_result = sc_file.transform([[445412, 709, 1167493, 8, 17.2, 1, 228190, 1, 0]])
-       term_arr = np.array([[0.0 , 1.0 ]])
+       scaler_result = np.array([[0 , 0 ]])
+       scaler_result = sc_file.transform([array])
+       print(scaler_result)
+       print(type(scaler_result))
+       print("*********4") 
+       term_arr = np.array([[0.0, 1.0]])
        pred_input = np.concatenate((term_arr, scaler_result), axis=None)
+       print(pred_input)
+       print("*********5")
 
        model = pickle.load(open(model_name, "rb"))
        prediction = model.predict([pred_input])
 
        result = f"Result is {prediction}"
        predict_text.set(result)
-
-
-'''
-       Short_term = 0.0
-       Long_term = 1.0
-       Loan_Amount = -0.40188364926595954
-       Credit_Score_feat =  int(var.get())
-       print(Credit_Score_feat)
-       print(type(Credit_Score_feat))
-       print("*************")
-       Annual_Income = 0.34743006086034717
-       Years_current_job = 0.34743006086034717
-       Years_Credit_History = 0.34743006086034717
-       Number_Credit_Problems = 0.34743006086034717
-       Current_Credit_Balance  = 0.34743006086034717
-       Bankruptcies = 0.34743006086034717
-       Tax_Liens  = 0.34743006086034717             
-
-
-
-
-       prediction=model.predict([[
-           Short_term,
-           Long_term,
-           Loan_Amount,
-           Credit_Score_feat,
-           Annual_Income,
-           Years_current_job,
-           Years_Credit_History,
-           Number_Credit_Problems,
-           Current_Credit_Balance,
-           Bankruptcies,
-           Tax_Liens
-           ]])
-'''
 
 
        
